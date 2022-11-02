@@ -1,0 +1,671 @@
+﻿<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationDate="1/25/2016 1:26:50 PM"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName="VMW24203"
+  DTS:CreatorName="VMAD\j35922"
+  DTS:DTSID="{77708306-7D75-41B4-8BFB-AB391ED9D7DD}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="14.0.3002.113"
+  DTS:LocaleID="1033"
+  DTS:ObjectName="UADMVIEWER_UAdmBStatHistB_update"
+  DTS:PackageType="5"
+  DTS:ProtectionLevel="2"
+  DTS:VersionBuild="166"
+  DTS:VersionGUID="{53A50264-E7B4-4949-8A3B-A54E4390279C}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:Variables />
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\merge to EDW"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{BF3A045D-D20A-428A-970B-CEC2A71B0F05}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="merge to EDW"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2016; © 2015 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{03E993E5-15D6-46D4-9186-7F72059C1B80}"
+          SQLTask:SqlStatementSource=" &#xA;/* &#xA; Created 12/19/18 MES&#xA; Merge from EDW staging to EDW for nightly load&#xA;&#xA;*/&#xA;  &#xA;DECLARE @LoadDt AS DATETIME = CURRENT_TIMESTAMP;&#xA;&#xA;MERGE EDW.CA.UADMVIEWER_UADMBSTATHISTB AS WHSE                -- Insert or Update the target table&#xA;USING EDW_TEMP.DBO.UADMVIEWER_UADMBSTATHISTB_STAGING AS STG -- from the source staging table&#xA;  ON (WHSE.ID = STG.ID)         -- Defining condition to decide which records are alredy present&#xA;  WHEN NOT MATCHED BY TARGET&#xA;     THEN INSERT (&#xA;[ID]&#xA;      ,[UStatidDt]&#xA;      ,[UStatidTm]&#xA;      ,[VISIT]&#xA;      ,[ENTERED_DATE]&#xA;      ,[ENTERED_TIME]&#xA;      ,[STATUS_TYPE]&#xA;      ,[STAT_HIST_USERID]&#xA;      ,[STATUS_ID]&#xA;&#x9;  ,[EDW_LOAD_DT_TM]&#xA;      ,[EDW_UPDT_DT_TM]&#xA;       )&#xA; VALUES (&#xA;STG.[ID]&#xA;      ,STG.[UStatidDt]&#xA;      ,STG.[UStatidTm]&#xA;      ,STG.[VISIT]&#xA;      ,STG.[ENTERED_DATE]&#xA;      ,STG.[ENTERED_TIME]&#xA;      ,STG.[STATUS_TYPE]&#xA;      ,STG.[STAT_HIST_USERID]&#xA;      ,STG.[STATUS_ID]&#xA;      ,@LoadDt --whse load dttm&#xA;      ,@LoadDt --whse update dttm&#xA;   )&#xA;  WHEN MATCHED&#xA;     THEN UPDATE SET&#xA;      WHSE.[UStatidDt]&#x9;&#x9;&#x9;= STG.USTATIDDT&#xA;      ,WHSE.[UStatidTm]&#x9;&#x9;&#x9;= STG.USTATIDTM&#xA;      ,WHSE.[VISIT]&#x9;&#x9;&#x9;&#x9;= STG.VISIT&#xA;      ,WHSE.[ENTERED_DATE]&#x9;&#x9;= STG.ENTERED_DATE&#xA;      ,WHSE.[ENTERED_TIME]&#x9;&#x9;= STG.ENTERED_TIME&#xA;      ,WHSE.[STATUS_TYPE]&#x9;&#x9;= STG.STATUS_TYPE&#xA;      ,WHSE.[STAT_HIST_USERID]&#x9;= STG.STAT_HIST_USERID&#xA;      ,WHSE.[STATUS_ID]&#x9;&#x9;&#x9;= STG.STATUS_ID&#xA;--   [EDW_Load_Dt_Tm]  DO NOT UPDATE THIS VALUE WHEN MERGE&#xA;      ,WHSE.[EDW_UPDT_DT_TM]&#x9;= @LoadDt -- whse update dttm&#xA;;&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\Truncate UADMVIEWER_UAdmBStatHistB_STAGING table"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{3E540D52-4B31-4E2E-A690-A047549B4FD2}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Truncate UADMVIEWER_UAdmBStatHistB_STAGING table"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2016; © 2015 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{F4A22A48-401A-4F25-B798-DAE5305E7B48}"
+          SQLTask:SqlStatementSource="TRUNCATE TABLE EDW_TEMP.DBO.UADMVIEWER_UADMBSTATHISTB_STAGING" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\update STAGING"
+      DTS:CreationName="Microsoft.Pipeline"
+      DTS:Description="Data Flow Task"
+      DTS:DTSID="{513D24FE-A694-4DA6-A039-FC8B1B9FB18B}"
+      DTS:ExecutableType="Microsoft.Pipeline"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="update STAGING"
+      DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <pipeline
+          autoAdjustBufferSize="true"
+          version="1">
+          <components>
+            <component
+              refId="Package\update STAGING\insert to Staging table"
+              componentClassID="Microsoft.ManagedComponentHost"
+              contactInfo="Loads data into an ADO.NET-compliant database that uses a database table or view. Load data into a new or existing table. For example, use an ADO.NET provider for ODBC to load data into an ODBC destination.;Microsoft Corporation; Microsoft SQL Server; © Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;2"
+              description="Loads data into an ADO.NET-compliant database that uses a database table or view. Load data into a new or existing table. For example, use an ADO.NET provider for ODBC to load data into an ODBC destination."
+              name="insert to Staging table"
+              usesDispositions="true"
+              version="2">
+              <properties>
+                <property
+                  dataType="System.String"
+                  description="The Destination database table name."
+                  expressionType="Notify"
+                  name="TableOrViewName"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">"dbo"."UADMVIEWER_UADMBSTATHISTB_STAGING"</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specify the number of rows per batch. The default is 0 which uses the same size as SSIS internal buffer. "
+                  expressionType="Notify"
+                  name="BatchSize">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out. A value of 0 indicates infinite time-out. "
+                  expressionType="Notify"
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Specifies whether to use the SqlBulkCopy interface to improve the performance of bulk insert operations. Only certain providers support this interface."
+                  expressionType="Notify"
+                  name="UseBulkInsertWhenPossible">true</property>
+                <property
+                  dataType="System.String"
+                  name="UserComponentTypeName">Microsoft.ADONETDestination</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\update STAGING\insert to Staging table.Connections[IDbConnection]"
+                  connectionManagerID="{F4A22A48-401A-4F25-B798-DAE5305E7B48}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[EDW_Temp]"
+                  description="Managed connection manager"
+                  name="IDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\update STAGING\insert to Staging table.Inputs[ADO NET Destination Input]"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="ADO NET Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\update STAGING\insert to Staging table.Inputs[ADO NET Destination Input].Columns[Id]"
+                      cachedCodepage="1252"
+                      cachedDataType="str"
+                      cachedLength="26"
+                      cachedName="Id"
+                      externalMetadataColumnId="Package\update STAGING\insert to Staging table.Inputs[ADO NET Destination Input].ExternalColumns[Id]"
+                      lineageId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].Columns[Id]" />
+                    <inputColumn
+                      refId="Package\update STAGING\insert to Staging table.Inputs[ADO NET Destination Input].Columns[UStatidDt]"
+                      cachedDataType="dbDate"
+                      cachedName="UStatidDt"
+                      externalMetadataColumnId="Package\update STAGING\insert to Staging table.Inputs[ADO NET Destination Input].ExternalColumns[UStatidDt]"
+                      lineageId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].Columns[UStatidDt]" />
+                    <inputColumn
+                      refId="Package\update STAGING\insert to Staging table.Inputs[ADO NET Destination Input].Columns[UStatidTm]"
+                      cachedDataType="dbTime"
+                      cachedName="UStatidTm"
+                      externalMetadataColumnId="Package\update STAGING\insert to Staging table.Inputs[ADO NET Destination Input].ExternalColumns[UStatidTm]"
+                      lineageId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].Columns[UStatidTm]" />
+                    <inputColumn
+                      refId="Package\update STAGING\insert to Staging table.Inputs[ADO NET Destination Input].Columns[ENTERED_DATE]"
+                      cachedDataType="dbDate"
+                      cachedName="ENTERED_DATE"
+                      externalMetadataColumnId="Package\update STAGING\insert to Staging table.Inputs[ADO NET Destination Input].ExternalColumns[ENTERED_DATE]"
+                      lineageId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].Columns[ENTERED_DATE]" />
+                    <inputColumn
+                      refId="Package\update STAGING\insert to Staging table.Inputs[ADO NET Destination Input].Columns[ENTERED_TIME]"
+                      cachedDataType="dbTime"
+                      cachedName="ENTERED_TIME"
+                      externalMetadataColumnId="Package\update STAGING\insert to Staging table.Inputs[ADO NET Destination Input].ExternalColumns[ENTERED_TIME]"
+                      lineageId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].Columns[ENTERED_TIME]" />
+                    <inputColumn
+                      refId="Package\update STAGING\insert to Staging table.Inputs[ADO NET Destination Input].Columns[STATUS_TYPE]"
+                      cachedCodepage="1252"
+                      cachedDataType="str"
+                      cachedLength="50"
+                      cachedName="STATUS_TYPE"
+                      externalMetadataColumnId="Package\update STAGING\insert to Staging table.Inputs[ADO NET Destination Input].ExternalColumns[STATUS_TYPE]"
+                      lineageId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].Columns[STATUS_TYPE]" />
+                    <inputColumn
+                      refId="Package\update STAGING\insert to Staging table.Inputs[ADO NET Destination Input].Columns[STAT_HIST_USERID]"
+                      cachedCodepage="1252"
+                      cachedDataType="str"
+                      cachedLength="50"
+                      cachedName="STAT_HIST_USERID"
+                      externalMetadataColumnId="Package\update STAGING\insert to Staging table.Inputs[ADO NET Destination Input].ExternalColumns[STAT_HIST_USERID]"
+                      lineageId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].Columns[STAT_HIST_USERID]" />
+                    <inputColumn
+                      refId="Package\update STAGING\insert to Staging table.Inputs[ADO NET Destination Input].Columns[STATUS_ID]"
+                      cachedDataType="i4"
+                      cachedName="STATUS_ID"
+                      externalMetadataColumnId="Package\update STAGING\insert to Staging table.Inputs[ADO NET Destination Input].ExternalColumns[STATUS_ID]"
+                      lineageId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].Columns[STATUS_ID]" />
+                    <inputColumn
+                      refId="Package\update STAGING\insert to Staging table.Inputs[ADO NET Destination Input].Columns[VISIT#]"
+                      cachedDataType="i4"
+                      cachedName="VISIT#"
+                      externalMetadataColumnId="Package\update STAGING\insert to Staging table.Inputs[ADO NET Destination Input].ExternalColumns[VISIT]"
+                      lineageId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].Columns[VISIT#]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\update STAGING\insert to Staging table.Inputs[ADO NET Destination Input].ExternalColumns[Id]"
+                      dataType="wstr"
+                      length="254"
+                      name="Id" />
+                    <externalMetadataColumn
+                      refId="Package\update STAGING\insert to Staging table.Inputs[ADO NET Destination Input].ExternalColumns[UStatidDt]"
+                      dataType="dbTimeStamp"
+                      name="UStatidDt" />
+                    <externalMetadataColumn
+                      refId="Package\update STAGING\insert to Staging table.Inputs[ADO NET Destination Input].ExternalColumns[UStatidTm]"
+                      dataType="dbTime2"
+                      name="UStatidTm" />
+                    <externalMetadataColumn
+                      refId="Package\update STAGING\insert to Staging table.Inputs[ADO NET Destination Input].ExternalColumns[VISIT]"
+                      dataType="i4"
+                      name="VISIT" />
+                    <externalMetadataColumn
+                      refId="Package\update STAGING\insert to Staging table.Inputs[ADO NET Destination Input].ExternalColumns[ENTERED_DATE]"
+                      dataType="dbTimeStamp"
+                      name="ENTERED_DATE" />
+                    <externalMetadataColumn
+                      refId="Package\update STAGING\insert to Staging table.Inputs[ADO NET Destination Input].ExternalColumns[ENTERED_TIME]"
+                      dataType="dbTime2"
+                      name="ENTERED_TIME" />
+                    <externalMetadataColumn
+                      refId="Package\update STAGING\insert to Staging table.Inputs[ADO NET Destination Input].ExternalColumns[STATUS_TYPE]"
+                      dataType="wstr"
+                      length="50"
+                      name="STATUS_TYPE" />
+                    <externalMetadataColumn
+                      refId="Package\update STAGING\insert to Staging table.Inputs[ADO NET Destination Input].ExternalColumns[STAT_HIST_USERID]"
+                      dataType="wstr"
+                      length="50"
+                      name="STAT_HIST_USERID" />
+                    <externalMetadataColumn
+                      refId="Package\update STAGING\insert to Staging table.Inputs[ADO NET Destination Input].ExternalColumns[STATUS_ID]"
+                      dataType="i4"
+                      name="STATUS_ID" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\update STAGING\insert to Staging table.Outputs[ADO NET Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="ADO NET Destination Error Output"
+                  synchronousInputId="Package\update STAGING\insert to Staging table.Inputs[ADO NET Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\update STAGING\insert to Staging table.Outputs[ADO NET Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\update STAGING\insert to Staging table.Outputs[ADO NET Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\update STAGING\insert to Staging table.Outputs[ADO NET Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\update STAGING\insert to Staging table.Outputs[ADO NET Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\update STAGING\ODBC Source 1"
+              componentClassID="Attunity.SSISODBCSrc"
+              contactInfo="ODBC Source;Connector for Open Database Connectivity (ODBC) by Attunity; Attunity Ltd.; All Rights Reserved; http://www.attunity.com;7"
+              description="ODBC Source"
+              name="ODBC Source 1"
+              usesDispositions="true"
+              version="6">
+              <properties>
+                <property
+                  dataType="System.String"
+                  description="The name of the table to be fetched."
+                  expressionType="Notify"
+                  name="TableName"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  expressionType="Notify"
+                  name="SqlCommand">SELECT *
+FROM UADMVIEWER.UADMBSTATHISTB
+WHERE USTATIDDT &gt; CURRENT_DATE - 12</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specify the number of rows fetched per batch."
+                  expressionType="Notify"
+                  name="BatchSize">1000</property>
+                <property
+                  dataType="System.Int32"
+                  description="Determines the chunk size allocation for LOB columns"
+                  expressionType="Notify"
+                  name="LobChunkSize">32768</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Determines how the component exposes CHAR columns. If False, CHAR columns are exposed as (multi-)byte strings (DT_STR), if True, CHAR columns are exposed as wide strings (DT_WSTR)"
+                  expressionType="Notify"
+                  name="ExposeCharColumnsAsUnicode">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds to wait for an SQL statement to execute before returning to the application."
+                  expressionType="Notify"
+                  name="StatementTimeout">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="The code page to use when code page information is unavailable from the data source."
+                  expressionType="Notify"
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Int32"
+                  description="The mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">1</property>
+                <property
+                  dataType="System.Int32"
+                  description="The method used for fetching data."
+                  expressionType="Notify"
+                  name="FetchMethod"
+                  typeConverter="FetchMethod">1</property>
+                <property
+                  dataType="System.Int32"
+                  description="The ODBC C data type for binding numeric data."
+                  expressionType="Notify"
+                  name="BindNumericAs"
+                  typeConverter="BindNumericAs">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Determines how the component would bind columns of (multi)-byte string types (i.e., SQL_CHAR, SQL_VARCHAR, SQL_LONGVARCHAR). The options are: Unicode (SQL_C_WCHAR) and ANSI (SQL_C_CHAR)."
+                  expressionType="Notify"
+                  name="BindCharColumnsAs"
+                  typeConverter="BindCharColumnsAs">0</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\update STAGING\ODBC Source 1.Connections[ODBCConnection]"
+                  connectionManagerID="{D7FE4603-F001-489A-BCD1-34ED00F36731}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[GE_Integ_Prod_Custom]"
+                  description="The ODBC runtime connection"
+                  name="ODBCConnection" />
+              </connections>
+              <outputs>
+                <output
+                  refId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output]"
+                  errorRowDisposition="FailComponent"
+                  name="ODBC Source Output"
+                  truncationRowDisposition="FailComponent">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].Columns[Id]"
+                      codePage="1252"
+                      dataType="str"
+                      externalMetadataColumnId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].ExternalColumns[Id]"
+                      length="26"
+                      lineageId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].Columns[Id]"
+                      name="Id" />
+                    <outputColumn
+                      refId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].Columns[UStatidDt]"
+                      dataType="dbDate"
+                      externalMetadataColumnId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].ExternalColumns[UStatidDt]"
+                      lineageId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].Columns[UStatidDt]"
+                      name="UStatidDt" />
+                    <outputColumn
+                      refId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].Columns[UStatidTm]"
+                      dataType="dbTime"
+                      externalMetadataColumnId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].ExternalColumns[UStatidTm]"
+                      lineageId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].Columns[UStatidTm]"
+                      name="UStatidTm" />
+                    <outputColumn
+                      refId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].Columns[VISIT#]"
+                      dataType="i4"
+                      externalMetadataColumnId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].ExternalColumns[VISIT#]"
+                      lineageId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].Columns[VISIT#]"
+                      name="VISIT#" />
+                    <outputColumn
+                      refId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].Columns[ENTERED_DATE]"
+                      dataType="dbDate"
+                      externalMetadataColumnId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].ExternalColumns[ENTERED_DATE]"
+                      lineageId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].Columns[ENTERED_DATE]"
+                      name="ENTERED_DATE" />
+                    <outputColumn
+                      refId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].Columns[ENTERED_TIME]"
+                      dataType="dbTime"
+                      externalMetadataColumnId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].ExternalColumns[ENTERED_TIME]"
+                      lineageId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].Columns[ENTERED_TIME]"
+                      name="ENTERED_TIME" />
+                    <outputColumn
+                      refId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].Columns[STATUS_TYPE]"
+                      codePage="1252"
+                      dataType="str"
+                      externalMetadataColumnId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].ExternalColumns[STATUS_TYPE]"
+                      length="50"
+                      lineageId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].Columns[STATUS_TYPE]"
+                      name="STATUS_TYPE" />
+                    <outputColumn
+                      refId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].Columns[STAT_HIST_USERID]"
+                      codePage="1252"
+                      dataType="str"
+                      externalMetadataColumnId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].ExternalColumns[STAT_HIST_USERID]"
+                      length="50"
+                      lineageId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].Columns[STAT_HIST_USERID]"
+                      name="STAT_HIST_USERID" />
+                    <outputColumn
+                      refId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].Columns[STATUS_ID]"
+                      dataType="i4"
+                      externalMetadataColumnId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].ExternalColumns[STATUS_ID]"
+                      lineageId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].Columns[STATUS_ID]"
+                      name="STATUS_ID" />
+                  </outputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].ExternalColumns[Id]"
+                      codePage="1252"
+                      dataType="str"
+                      length="26"
+                      name="Id" />
+                    <externalMetadataColumn
+                      refId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].ExternalColumns[UStatidDt]"
+                      dataType="dbDate"
+                      name="UStatidDt" />
+                    <externalMetadataColumn
+                      refId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].ExternalColumns[UStatidTm]"
+                      dataType="dbTime"
+                      name="UStatidTm" />
+                    <externalMetadataColumn
+                      refId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].ExternalColumns[VISIT#]"
+                      dataType="i4"
+                      name="VISIT#" />
+                    <externalMetadataColumn
+                      refId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].ExternalColumns[ENTERED_DATE]"
+                      dataType="dbDate"
+                      name="ENTERED_DATE" />
+                    <externalMetadataColumn
+                      refId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].ExternalColumns[ENTERED_TIME]"
+                      dataType="dbTime"
+                      name="ENTERED_TIME" />
+                    <externalMetadataColumn
+                      refId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].ExternalColumns[STATUS_TYPE]"
+                      codePage="1252"
+                      dataType="str"
+                      length="50"
+                      name="STATUS_TYPE" />
+                    <externalMetadataColumn
+                      refId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].ExternalColumns[STAT_HIST_USERID]"
+                      codePage="1252"
+                      dataType="str"
+                      length="50"
+                      name="STAT_HIST_USERID" />
+                    <externalMetadataColumn
+                      refId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].ExternalColumns[STATUS_ID]"
+                      dataType="i4"
+                      name="STATUS_ID" />
+                  </externalMetadataColumns>
+                </output>
+                <output
+                  refId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Error Output]"
+                  isErrorOut="true"
+                  name="ODBC Source Error Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Error Output].Columns[Id]"
+                      codePage="1252"
+                      dataType="str"
+                      externalMetadataColumnId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].ExternalColumns[Id]"
+                      length="26"
+                      lineageId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Error Output].Columns[Id]"
+                      name="Id" />
+                    <outputColumn
+                      refId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Error Output].Columns[UStatidDt]"
+                      dataType="dbDate"
+                      externalMetadataColumnId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].ExternalColumns[UStatidDt]"
+                      lineageId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Error Output].Columns[UStatidDt]"
+                      name="UStatidDt" />
+                    <outputColumn
+                      refId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Error Output].Columns[UStatidTm]"
+                      dataType="dbTime"
+                      externalMetadataColumnId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].ExternalColumns[UStatidTm]"
+                      lineageId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Error Output].Columns[UStatidTm]"
+                      name="UStatidTm" />
+                    <outputColumn
+                      refId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Error Output].Columns[VISIT#]"
+                      dataType="i4"
+                      externalMetadataColumnId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].ExternalColumns[VISIT#]"
+                      lineageId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Error Output].Columns[VISIT#]"
+                      name="VISIT#" />
+                    <outputColumn
+                      refId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Error Output].Columns[ENTERED_DATE]"
+                      dataType="dbDate"
+                      externalMetadataColumnId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].ExternalColumns[ENTERED_DATE]"
+                      lineageId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Error Output].Columns[ENTERED_DATE]"
+                      name="ENTERED_DATE" />
+                    <outputColumn
+                      refId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Error Output].Columns[ENTERED_TIME]"
+                      dataType="dbTime"
+                      externalMetadataColumnId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].ExternalColumns[ENTERED_TIME]"
+                      lineageId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Error Output].Columns[ENTERED_TIME]"
+                      name="ENTERED_TIME" />
+                    <outputColumn
+                      refId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Error Output].Columns[STATUS_TYPE]"
+                      codePage="1252"
+                      dataType="str"
+                      externalMetadataColumnId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].ExternalColumns[STATUS_TYPE]"
+                      length="50"
+                      lineageId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Error Output].Columns[STATUS_TYPE]"
+                      name="STATUS_TYPE" />
+                    <outputColumn
+                      refId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Error Output].Columns[STAT_HIST_USERID]"
+                      codePage="1252"
+                      dataType="str"
+                      externalMetadataColumnId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].ExternalColumns[STAT_HIST_USERID]"
+                      length="50"
+                      lineageId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Error Output].Columns[STAT_HIST_USERID]"
+                      name="STAT_HIST_USERID" />
+                    <outputColumn
+                      refId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Error Output].Columns[STATUS_ID]"
+                      dataType="i4"
+                      externalMetadataColumnId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output].ExternalColumns[STATUS_ID]"
+                      lineageId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Error Output].Columns[STATUS_ID]"
+                      name="STATUS_ID" />
+                    <outputColumn
+                      refId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+          </components>
+          <paths>
+            <path
+              refId="Package\update STAGING.Paths[ODBC Source Output]"
+              endId="Package\update STAGING\insert to Staging table.Inputs[ADO NET Destination Input]"
+              name="ODBC Source Output"
+              startId="Package\update STAGING\ODBC Source 1.Outputs[ODBC Source Output]" />
+          </paths>
+        </pipeline>
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint]"
+      DTS:CreationName=""
+      DTS:DTSID="{9087FEC2-9723-4915-84A0-0039348F013C}"
+      DTS:From="Package\Truncate UADMVIEWER_UAdmBStatHistB_STAGING table"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint"
+      DTS:To="Package\update STAGING" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 1]"
+      DTS:CreationName=""
+      DTS:DTSID="{E32D91F0-ECDD-4D9A-A08B-AB6768A97840}"
+      DTS:From="Package\update STAGING"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 1"
+      DTS:To="Package\merge to EDW" />
+  </DTS:PrecedenceConstraints>
+  <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
+<!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
+<!--If you manually edit this section and make a mistake, you can delete it. -->
+<!--The package will still be able to load normally but the previous layout information will be lost and the designer will automatically re-arrange the elements on the design surface.-->
+<Objects
+  Version="8">
+  <!--Each node below will contain properties that do not affect runtime behavior.-->
+  <Package
+    design-time-name="Package">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="150,42"
+          Id="Package\merge to EDW"
+          TopLeft="161,218" />
+        <NodeLayout
+          Size="353.333333333334,42"
+          Id="Package\Truncate UADMVIEWER_UAdmBStatHistB_STAGING table"
+          TopLeft="57,29" />
+        <NodeLayout
+          Size="161.333333333334,42"
+          Id="Package\update STAGING"
+          TopLeft="153,122.866666651169" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint]"
+          TopLeft="233.666666666667,71">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{x:Null}"
+              EndConnector="0,51.8666666511694"
+              Start="0,0"
+              End="0,44.3666666511694">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,44.3666666511694" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 1]"
+          TopLeft="234.833333333333,164.866666651169">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{x:Null}"
+              EndConnector="0,53.1333333488306"
+              Start="0,0"
+              End="0,45.6333333488306">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,45.6333333488306" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </Package>
+  <TaskHost
+    design-time-name="Package\update STAGING">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="4" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="152,42.6666666666667"
+          Id="Package\update STAGING\ODBC Source 1"
+          TopLeft="114.166664965451,35.9666660235326" />
+        <NodeLayout
+          Size="185.333333333334,42"
+          Id="Package\update STAGING\insert to Staging table"
+          TopLeft="94,135" />
+        <EdgeLayout
+          Id="Package\update STAGING.Paths[ODBC Source Output]"
+          TopLeft="188.416665816059,78.6333326901992">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{x:Null}"
+              EndConnector="0,56.3666673098008"
+              Start="0,0"
+              End="0,48.8666673098008">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,48.8666673098008" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </TaskHost>
+  <PipelineComponentMetadata
+    design-time-name="Package\update STAGING\insert to Staging table">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+</Objects>]]></DTS:DesignTimeProperties>
+</DTS:Executable>
